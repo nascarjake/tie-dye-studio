@@ -347,6 +347,16 @@ button:not(:disabled):active {
   align-items: center;
   gap: 8px;
 }
+.header-credit {
+  color: inherit;
+  text-decoration: none;
+}
+.header-credit:hover,
+.header-credit:focus-visible {
+  color: #3d82e6;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
 .header-note svg {
   height: 15px;
   width: 15px;
@@ -1858,7 +1868,7 @@ dialog h2 {
 }
 .placed-sticker span {
   font: var(--sticker-size) / 1 Georgia;
-  color: #fffaf2;
+  color: var(--sticker-color, #fffaf2);
   -webkit-text-stroke: var(--sticker-stroke) #34372c;
   pointer-events: none;
 }
@@ -1900,9 +1910,9 @@ dialog h2 {
   box-shadow: 0 2px var(--ink);
 }
 .sticker-palette {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(8, minmax(40px, 1fr));
   gap: 7px;
-  flex-wrap: wrap;
   align-items: center;
 }
 .sticker-palette .sticker-choice {
@@ -1917,6 +1927,49 @@ dialog h2 {
   background: #eef1e1;
   padding: 8px 12px;
   font-size: 13px;
+}
+.sticker-category-tabs {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.sticker-category-tabs button {
+  min-height: 34px;
+  padding: 4px 10px;
+  border: 1px solid #d5dcc5;
+  border-radius: 999px;
+  color: #697267;
+  background: #fff;
+  font: 700 11px "Manrope";
+}
+.sticker-category-tabs button[aria-selected="true"] {
+  border-color: #5f926b;
+  color: #315f41;
+  background: #edf4df;
+}
+.sticker-colors {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 38px;
+  font-size: 13px;
+}
+.sticker-colors > span {
+  margin-right: auto;
+}
+.sticker-color {
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  outline: 1px solid #cbd3bd;
+  background: var(--swatch);
+}
+.sticker-color[aria-pressed="true"] {
+  outline: 2px solid #3d82e6;
+  outline-offset: 2px;
+  transform: scale(1.08);
 }
 .editor-instruction {
   font-size: 13px;
@@ -2394,8 +2447,7 @@ body[data-step="4"] .secret-note {
   }
   .sticker-palette {
     gap: 5px;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr) auto;
+    grid-template-columns: repeat(4, 1fr);
   }
   .sticker-palette .sticker-choice {
     width: 100%;
@@ -2407,6 +2459,7 @@ body[data-step="4"] .secret-note {
     font-size: 13px;
     padding: 5px;
     min-height: 42px;
+    grid-column: span 2;
   }
   .editor-instruction {
     font-size: 14px;

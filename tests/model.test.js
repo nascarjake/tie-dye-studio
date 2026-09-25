@@ -4,6 +4,8 @@ import {
   FOLDS,
   DYE_COLORS,
   MAX_DROPS,
+  STICKERS,
+  STICKER_CATEGORIES,
   createShirt,
   addDrop,
   canAdvance,
@@ -81,10 +83,16 @@ test("stickers remain on the fabric through scaling and dragging", async () => {
   sticker.y = -20;
   sticker.size = 10;
   constrainSticker(sticker);
-  assert.equal(sticker.size, 0.32);
+  assert.equal(sticker.size, 0.42);
+  assert.equal(sticker.color, "#fffaf2");
   assert.ok(sticker.x + sticker.size * 0.55 <= 0.41);
   assert.ok(sticker.y - sticker.size * 0.55 >= -0.64);
   for (let i = 0; i < 10; i++) addSticker(shirt, "★");
   assert.equal(shirt.stickers.length, 8);
   assert.equal(addSticker(shirt, "?"), null);
+});
+test("sticker collections offer a colorful range of choices", () => {
+  assert.equal(STICKERS.length, 24);
+  assert.equal(new Set(STICKERS).size, 24);
+  assert.deepEqual(Object.keys(STICKER_CATEGORIES), ["Favorites", "Playful", "Adventure"]);
 });

@@ -53,7 +53,22 @@ export const DYE_COLORS = [
   { name: "Magenta", hex: "#d84ba6", rgb: [216, 75, 166] },
 ];
 export const MAX_DROPS = 300;
-export const STICKERS = ["✿", "♡", "★", "☀", "✦", "☁"];
+export const STICKER_CATEGORIES = {
+  Favorites: ["✿", "♡", "★", "☀", "✦", "☁", "☾", "☄"],
+  Playful: ["⚡", "♫", "☮", "☯", "☘", "♛", "☻", "✺"],
+  Adventure: ["✈", "☂", "⚓", "☕", "✉", "✎", "♬", "✽"],
+};
+export const STICKERS = Object.values(STICKER_CATEGORIES).flat();
+export const STICKER_COLORS = [
+  { name: "Cream", value: "#fffaf2" },
+  { name: "Cherry", value: "#ef426f" },
+  { name: "Orange", value: "#f08a32" },
+  { name: "Sunshine", value: "#f4c52f" },
+  { name: "Mint", value: "#42a875" },
+  { name: "Sky", value: "#3d82e6" },
+  { name: "Violet", value: "#8058d6" },
+  { name: "Ink", value: "#17233b" },
+];
 export function createShirt() {
   return {
     id: crypto.randomUUID(),
@@ -115,6 +130,24 @@ export const STICKER_NAMES = {
   "☀": "Sun",
   "✦": "Sparkle",
   "☁": "Cloud",
+  "☾": "Moon",
+  "☄": "Comet",
+  "⚡": "Lightning",
+  "♫": "Music note",
+  "☮": "Peace sign",
+  "☯": "Yin yang",
+  "☘": "Lucky clover",
+  "♛": "Crown",
+  "☻": "Smiley",
+  "✺": "Burst",
+  "✈": "Airplane",
+  "☂": "Umbrella",
+  "⚓": "Anchor",
+  "☕": "Coffee cup",
+  "✉": "Letter",
+  "✎": "Pencil",
+  "♬": "Music",
+  "✽": "Flower burst",
 };
 export function addBand(shirt, point) {
   if (shirt.bands >= 3) return false;
@@ -138,13 +171,13 @@ export function addBand(shirt, point) {
   return true;
 }
 export function constrainSticker(sticker) {
-  sticker.size = Math.max(0.12, Math.min(0.32, sticker.size));
+  sticker.size = Math.max(0.1, Math.min(0.42, sticker.size));
   const margin = sticker.size * 0.55;
   sticker.x = Math.max(-0.41 + margin, Math.min(0.41 - margin, sticker.x));
   sticker.y = Math.max(-0.64 + margin, Math.min(0.42 - margin, sticker.y));
   return sticker;
 }
-export function addSticker(shirt, symbol, random = false) {
+export function addSticker(shirt, symbol, random = false, color = "#fffaf2") {
   if (shirt.stickers.length >= 8 || !STICKERS.includes(symbol)) return null;
   const places = [
     [0, 0.1],
@@ -162,7 +195,12 @@ export function addSticker(shirt, symbol, random = false) {
     symbol,
     x: random ? (Math.random() - 0.5) * 0.6 : x,
     y: random ? Math.random() * 0.8 - 0.5 : y,
-    size: random ? 0.14 + Math.random() * 0.09 : 0.2,
+    size: random ? 0.12 + Math.random() * 0.24 : 0.2,
+    color: random
+      ? STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)].value
+      : STICKER_COLORS.some((swatch) => swatch.value === color)
+        ? color
+        : "#fffaf2",
   });
   shirt.stickers.push(sticker);
   return sticker;

@@ -2,6 +2,8 @@ import "./style.css";
 import {
   FOLDS,
   STICKERS,
+  STICKER_CATEGORIES,
+  STICKER_COLORS,
   STICKER_NAMES,
   DYE_COLORS,
   MAX_DROPS,
@@ -19,7 +21,8 @@ const uiVersion = new URLSearchParams(window.location.search).get("ui");
 const useV2 = uiVersion !== "v1";
 document.body.classList.toggle("ui-v2", useV2);
 let selectedSticker = null,
-  finishTab = "decorate";
+  finishTab = "decorate",
+  stickerCategory = "Favorites";
 let shirt = createShirt(),
   step = 0,
   shade = 1,
@@ -56,7 +59,7 @@ ${
     ? `<section class="game-intro" id="game-intro" role="dialog" aria-modal="true" aria-labelledby="game-intro-title"><div class="game-intro-sparkles" aria-hidden="true"><span>✦</span><span>●</span><span>✳</span><span>●</span><span>✦</span><span>●</span></div><div class="game-intro-card"><div class="game-intro-icon" aria-hidden="true">${icon("shirt")}</div><p class="game-intro-kicker">WELCOME TO THE COLOR LAB</p><h1 id="game-intro-title">Make a tee that is <em>totally yours.</em></h1><p class="game-intro-copy">Fold it, tie it, splash on color, then hang it for the world to see.</p><div class="game-intro-levels" aria-label="Fold, tie, dye, and finish"><span>Fold</span><i></i><span>Tie</span><i></i><span>Dye</span><i></i><span>Finish</span></div><button class="button primary game-intro-button" id="start-game">Enter the studio ${icon("arrow")}</button><p class="game-intro-note">Every choice changes your one-of-a-kind shirt.</p></div></section>`
     : ""
 }
-<header class="header"><a class="brand" href="#" aria-label="Dye Day home"><span class="brand-flower">✳</span><span>Dye Day<span class="brand-dot">!</span></span></a><nav aria-label="Main navigation"><button class="nav-link active" id="studio-nav" aria-label="The dye studio">${icon("shirt")} <span class="nav-desktop">Dye studio</span><span class="nav-mobile">Studio</span></button><button class="nav-link" id="gallery-nav" aria-label="The clothesline">${icon("line")} <span class="nav-desktop">The clothesline</span><span class="nav-mobile">Clothesline</span> <span class="count" id="gallery-count">0</span></button></nav><span class="header-note">MAKE IT LOUD · MAKE IT YOURS ${icon("heart")}</span></header>
+<header class="header"><a class="brand" href="#" aria-label="Dye Day home"><span class="brand-flower">✳</span><span>Dye Day<span class="brand-dot">!</span></span></a><nav aria-label="Main navigation"><button class="nav-link active" id="studio-nav" aria-label="The dye studio">${icon("shirt")} <span class="nav-desktop">Dye studio</span><span class="nav-mobile">Studio</span></button><button class="nav-link" id="gallery-nav" aria-label="The clothesline">${icon("line")} <span class="nav-desktop">The clothesline</span><span class="nav-mobile">Clothesline</span> <span class="count" id="gallery-count">0</span></button></nav><a class="header-note header-credit" href="https://jakesdoesdev.com" target="_blank" rel="noopener">MADE BY GOOSE GAMES ↗</a></header>
 <main>
 <section id="studio-view">
 <div class="intro"><div><p class="eyebrow">WELCOME TO THE COLOR LAB</p><h1>Fold it. Splash it. <br>Make it <em>iconic.</em></h1><p class="intro-copy">Create a one-of-a-kind tie-dye tee, add your finishing touches, and hang it on the worldwide clothesline.</p></div><div class="intro-stamp"><span>100% ORIGINAL</span><strong>Made<br>by you</strong><span>ONE WILD TEE AT A TIME</span></div></div>
@@ -313,9 +316,10 @@ function renderFinish(content) {
   };
   const panel = $("#finish-panel");
   if (finishTab === "decorate") {
-    panel.innerHTML = `<div class="sticker-palette" role="group" aria-label="Add stickers">${STICKERS.map((symbol) => `<button class="sticker-choice" data-symbol="${symbol}" aria-label="${STICKER_NAMES[symbol]} sticker" ${saved || shirt.stickers.length >= 8 ? "disabled" : ""}>${symbol}</button>`).join("")}<button class="random-stickers" id="random-stickers" ${saved || shirt.stickers.length >= 8 ? "disabled" : ""}>Surprise me ✧</button></div><p class="editor-instruction" id="editor-status" aria-live="polite">${shirt.stickers.length}/8 stickers · ${selected ? "Drag your sticker, or use the controls below." : "Tap a sticker to add it. Add a few, or keep it simple."}</p><div class="sticker-tools ${selected ? "" : "empty"}">${
+    const categoryStickers = STICKER_CATEGORIES[stickerCategory];
+    panel.innerHTML = `<div class="sticker-category-tabs" role="tablist" aria-label="Sticker collections">${Object.keys(STICKER_CATEGORIES).map((category) => `<button role="tab" data-sticker-category="${category}" aria-selected="${stickerCategory === category}">${category}</button>`).join("")}</div><div class="sticker-palette" role="group" aria-label="Add stickers">${categoryStickers.map((symbol) => `<button class="sticker-choice" data-symbol="${symbol}" aria-label="${STICKER_NAMES[symbol]} sticker" ${saved || shirt.stickers.length >= 8 ? "disabled" : ""}>${symbol}</button>`).join("")}<button class="random-stickers" id="random-stickers" ${saved || shirt.stickers.length >= 8 ? "disabled" : ""}>Surprise me ✧</button></div><p class="editor-instruction" id="editor-status" aria-live="polite">${shirt.stickers.length}/8 stickers · ${selected ? "Drag it, recolor it, or use the controls below." : "Pick from 24 stickers, then make it your own."}</p><div class="sticker-tools ${selected ? "" : "empty"}">${
       selected
-        ? `<div class="size-control"><label for="sticker-size">Size</label><input id="sticker-size" type="range" min="12" max="32" step="1" value="${Math.round(selected.size * 100)}" ${saved ? "disabled" : ""}/><span id="sticker-size-label">${Math.round(selected.size * 100)}</span><button class="text-button" id="remove-sticker" ${saved ? "disabled" : ""}>Remove</button></div><div class="move-controls" role="group" aria-label="Move selected sticker"><span>Move</span>${[
+        ? `<div class="sticker-colors" role="group" aria-label="Color selected sticker"><span>Color</span>${STICKER_COLORS.map((swatch) => `<button class="sticker-color" data-sticker-color="${swatch.value}" aria-label="${swatch.name}" aria-pressed="${(selected.color || "#fffaf2") === swatch.value}" style="--swatch: ${swatch.value}" ${saved ? "disabled" : ""}></button>`).join("")}</div><div class="size-control"><label for="sticker-size">Size</label><input id="sticker-size" type="range" min="10" max="42" step="1" value="${Math.round(selected.size * 100)}" ${saved ? "disabled" : ""}/><span id="sticker-size-label">${Math.round(selected.size * 100)}</span><button class="text-button" id="remove-sticker" ${saved ? "disabled" : ""}>Remove</button></div><div class="move-controls" role="group" aria-label="Move selected sticker"><span>Move</span>${[
             ["left", "←"],
             ["up", "↑"],
             ["down", "↓"],
@@ -338,6 +342,13 @@ function renderFinish(content) {
           renderStep();
         }),
     );
+    panel.querySelectorAll("[data-sticker-category]").forEach(
+      (button) =>
+        (button.onclick = () => {
+          stickerCategory = button.dataset.stickerCategory;
+          renderStep();
+        }),
+    );
     $("#random-stickers").onclick = () => {
       const count = Math.min(3, 8 - shirt.stickers.length);
       for (let i = 0; i < count; i++) {
@@ -356,6 +367,14 @@ function renderFinish(content) {
       content.scrollTop = 0;
     };
     if (selected) {
+      panel.querySelectorAll("[data-sticker-color]").forEach(
+        (button) =>
+          (button.onclick = () => {
+            selected.color = button.dataset.stickerColor;
+            stickerEditor.sync();
+            renderStep();
+          }),
+      );
       $("#sticker-size").oninput = (event) => {
         selected.size = Number(event.target.value) / 100;
         constrainSticker(selected);

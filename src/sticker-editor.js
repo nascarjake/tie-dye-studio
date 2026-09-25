@@ -8,7 +8,7 @@ export function paintStickers(ctx, stickers, width, height) {
   for (const sticker of stickers) {
     const pixels = (sticker.size * height) / 2.08;
     ctx.font = `${pixels}px Georgia`;
-    ctx.fillStyle = "#fffaf2";
+    ctx.fillStyle = sticker.color || "#fffaf2";
     ctx.strokeStyle = "#34372c";
     ctx.lineWidth = pixels * 0.025;
     const x = width / 2 + (sticker.x * height) / 2.08;
@@ -103,6 +103,7 @@ export class StickerEditor {
       button.style.top = `${height / 2 - (sticker.y * height) / 2.08}px`;
       button.style.setProperty("--sticker-size", `${pixels}px`);
       button.style.setProperty("--sticker-stroke", `${pixels * 0.025}px`);
+      button.style.setProperty("--sticker-color", sticker.color || "#fffaf2");
       button.classList.toggle("selected", enabled && sticker.id === selected);
       button.setAttribute("aria-pressed", String(sticker.id === selected));
       button.disabled = !enabled;

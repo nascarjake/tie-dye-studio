@@ -26,6 +26,7 @@ test("default game has a colorful intro and all eight dyes", async ({ page }) =>
   await page.goto("/");
   await expect(page.locator(".footer-credit")).toHaveText("MADE BY GOOSE GAMES");
   await expect(page.locator(".footer-credit")).toHaveAttribute("href", "https://jakesdoesdev.com");
+  await expect(page.locator(".header-credit")).toHaveText("MADE BY GOOSE GAMES ↗");
   await expect(
     page.getByRole("heading", { name: "Make a tee that is totally yours." }),
   ).toBeVisible();
@@ -65,6 +66,14 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
   await expect(page.getByRole("heading", { name: "Your tee is ready!" })).toBeVisible();
   await page.getByRole("button", { name: "Star sticker" }).click();
   await expect(page.locator(".placed-sticker")).toHaveCount(1);
+  await page.getByRole("tab", { name: "Playful" }).click();
+  await page.getByRole("button", { name: "Lightning sticker" }).click();
+  await page.getByRole("button", { name: "Violet" }).click();
+  await expect(page.locator(".placed-sticker")).toHaveCount(2);
+  await expect(page.locator(".placed-sticker").nth(1).locator("span")).toHaveCSS(
+    "color",
+    "rgb(128, 88, 214)",
+  );
   expect(errors).toEqual([]);
 });
 
