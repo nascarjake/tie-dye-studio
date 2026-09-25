@@ -88,6 +88,35 @@ test("the paint-point budget stops at 300 without slowing the shader", async ({ 
   expect(elapsed).toBeLessThan(5000);
 });
 
+test("mobile save uses the native file share handoff", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "maxTouchPoints", {
+      configurable: true,
+      value: 2,
+    });
+    Object.defineProperty(navigator, "canShare", {
+      configurable: true,
+      value: ({ files }) => Array.isArray(files) && files.length === 1,
+    });
+    Object.defineProperty(navigator, "share", {
+      configurable: true,
+      value: ({ files }) => {
+        window.__sharedShirt = { name: files[0].name, type: files[0].type };
+        return Promise.resolve();
+      },
+    });
+  });
+  await reachDye(page);
+  await paint(page, 4);
+  await page.getByRole("button", { name: "Finish my shirt" }).click();
+  await page.getByRole("button", { name: "Unfold my shirt" }).click();
+  await page.getByRole("button", { name: "Save & share", exact: true }).click();
+  await page.getByRole("button", { name: "Save my shirt", exact: true }).click();
+  await expect
+    .poll(() => page.evaluate(() => window.__sharedShirt))
+    .toEqual({ name: expect.stringMatching(/^dye-day-.*\.png$/), type: "image/png" });
+});
+
 test("a finished shirt saves locally, downloads, and starts another tee", async ({ page }) => {
   await reachDye(page, "Sunburst");
   await paint(page, 5);
