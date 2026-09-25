@@ -67,7 +67,7 @@ ${
 <div class="under-workspace"><span>NO TWO SHIRTS ALIKE. THAT’S THE WHOLE POINT.</span><span>Fold it. Dye it. Show it off. <span class="tiny-flower">✳</span></span></div>
 </section>
 <section id="gallery-view" hidden><div class="gallery-heading"><p class="eyebrow">FRESHLY DYED. PROUDLY DISPLAYED.</p><h1>The worldwide <em>clothesline.</em></h1><p id="gallery-description"></p><div class="gallery-actions"><button class="button secondary" id="back-to-studio">${icon("shirt")} Back to my shirt</button><button class="button primary" id="new-shirt">Make another shirt ${icon("arrow")}</button></div></div><div id="gallery-items" class="clothesline"></div><button class="text-button gallery-refresh" id="refresh-gallery">${icon("reset")} Refresh the clothesline</button></section>
-</main><footer><span>Dye Day<span class="brand-dot">!</span></span><p>The tie-dye playground</p><span>MADE FOR COLOR LOVERS</span></footer>
+</main><footer><span>Dye Day<span class="brand-dot">!</span></span><p>The tie-dye playground</p><a class="footer-credit" href="https://jakesdoesdev.com" target="_blank" rel="noopener">MADE BY GOOSE GAMES</a></footer>
 <div id="toast" role="status" aria-live="polite"></div>
 <dialog id="reset-dialog"><form method="dialog"><span class="dialog-flower">✳</span><h2>A fresh little start?</h2><p>Your current shirt will be cleared. Download it or hang it up first if you want to keep it.</p><div class="dialog-actions"><button value="cancel" class="button secondary">Keep this shirt</button><button value="reset" class="button primary">Start fresh ${icon("arrow")}</button></div></form></dialog>
 `;

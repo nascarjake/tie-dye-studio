@@ -829,9 +829,17 @@ footer p {
   font: italic 14px Georgia;
   margin: 0;
 }
-footer > span:last-child {
+.footer-credit {
+  color: inherit;
   font-size: 13px;
   letter-spacing: 1px;
+  text-decoration: none;
+}
+.footer-credit:hover,
+.footer-credit:focus-visible {
+  color: #60704f;
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 .band-visual {
   display: flex;
@@ -1585,7 +1593,7 @@ dialog h2 {
   footer p {
     font-size: 12px;
   }
-  footer > span:last-child {
+  .footer-credit {
     font-size: 8px;
     width: 100%;
     text-align: center;
