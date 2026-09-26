@@ -912,6 +912,7 @@ footer p {
   grid-column: 1 / -1;
 }
 .soak-setting > div {
+  display: flex;
   align-items: baseline;
   justify-content: space-between;
 }
@@ -936,6 +937,13 @@ footer p {
   color: #747b70;
   font-size: 11px;
   line-height: 1.3;
+}
+.finish-soak {
+  margin: 14px 0;
+  padding: 10px 12px;
+  border: 1px solid #d9dfc8;
+  border-radius: 10px;
+  background: #fff;
 }
 .setting-choice {
   min-width: 0;

@@ -39,13 +39,6 @@ test("default game has a colorful intro and all eight dyes", async ({ page }) =>
   ])
     await expect(page.getByRole("button", { name: color })).toBeVisible();
   await expect(page.getByText("0 / 300 paint points")).toBeVisible();
-  await expect(page.getByLabel("Soak time")).toHaveValue("40");
-  await expect(page.locator("#soak-value")).toHaveText("40%");
-  await page.getByLabel("Soak time").evaluate((input) => {
-    input.value = "10";
-    input.dispatchEvent(new Event("input", { bubbles: true }));
-  });
-  await expect(page.locator("#soak-value")).toHaveText("10%");
 });
 
 test("colors appear while painting and finish as a decorated shirt", async ({ page }) => {
@@ -72,6 +65,12 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
   await page.getByRole("button", { name: "Finish my shirt" }).click();
   await page.getByRole("button", { name: "Unfold my shirt" }).click();
   await expect(page.getByRole("heading", { name: "Your tee is ready!" })).toBeVisible();
+  await expect(page.getByLabel("Soak time")).toHaveValue("40");
+  await page.getByLabel("Soak time").evaluate((input) => {
+    input.value = "10";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  await expect(page.locator("#soak-value")).toHaveText("10%");
   await page.getByRole("button", { name: "Star sticker" }).click();
   await expect(page.locator(".placed-sticker")).toHaveCount(1);
   await page.getByRole("tab", { name: "Playful" }).click();
