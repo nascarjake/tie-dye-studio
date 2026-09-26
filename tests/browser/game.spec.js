@@ -25,8 +25,9 @@ async function paint(page, count = 5) {
 test("default game has a colorful intro and all eight dyes", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".footer-credit")).toHaveText("MADE BY GOOSE GAMES");
-  await expect(page.locator(".footer-credit")).toHaveAttribute("href", "https://jakesdoesdev.com");
+  await expect(page.locator(".footer-credit")).toHaveAttribute("href", "https://jakedoesdev.com");
   await expect(page.locator(".header-credit")).toHaveText("MADE BY GOOSE GAMES ↗");
+  await expect(page.locator(".header-credit")).toHaveAttribute("href", "https://jakedoesdev.com");
   await expect(
     page.getByRole("heading", { name: "Make a tee that is totally yours." }),
   ).toBeVisible();
