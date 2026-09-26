@@ -99,6 +99,18 @@ test("oversized, invalid JSON, malformed PNG and invalid collections are rejecte
   );
   assert.equal(e.calls.length, 0);
 });
+test("submission rejects URLs and profanity in public shirt details", async () => {
+  const e = env();
+  assert.equal(
+    (await worker.fetch(post({ ...entry, name: "www.example.com" }), e)).status,
+    400,
+  );
+  assert.equal(
+    (await worker.fetch(post({ ...entry, title: "sh1t" }), e)).status,
+    400,
+  );
+  assert.equal(e.calls.length, 0);
+});
 test("PNG header and dimensions are checked before storing a submitted image", () => {
   assert.equal(validPng(png), true);
   assert.equal(validPng("data:image/png;base64,AAAA"), false);

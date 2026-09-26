@@ -53,12 +53,13 @@ export const DYE_COLORS = [
   { name: "Magenta", hex: "#d84ba6", rgb: [216, 75, 166] },
 ];
 export const MAX_DROPS = 300;
-export const STICKER_CATEGORIES = {
-  Favorites: ["✿", "♡", "★", "☀", "✦", "☁", "☾", "☄"],
-  Playful: ["⚡", "♫", "☮", "☯", "☘", "♛", "☻", "✺"],
-  Adventure: ["✈", "☂", "⚓", "☕", "✉", "✎", "♬", "✽"],
-};
-export const STICKERS = Object.values(STICKER_CATEGORIES).flat();
+export {
+  STICKERS,
+  STICKER_CATEGORIES,
+  STICKER_NAMES,
+} from "./stickers.js";
+import { STICKERS } from "./stickers.js";
+export { publicTextError, validEntry } from "./validation.js";
 export const STICKER_COLORS = [
   { name: "Cream", value: "#fffaf2" },
   { name: "Cherry", value: "#ef426f" },
@@ -110,46 +111,6 @@ export function canAdvance(step, shirt) {
     (step === 2 && shirt.drops.length >= 3)
   );
 }
-export function validEntry(entry) {
-  return (
-    entry &&
-    typeof entry.id === "string" &&
-    typeof entry.image === "string" &&
-    /^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(entry.image) &&
-    entry.image.length < 350000 &&
-    typeof entry.name === "string" &&
-    entry.name.length <= 32 &&
-    typeof entry.title === "string" &&
-    entry.title.length <= 48
-  );
-}
-
-export const STICKER_NAMES = {
-  "✿": "Flower",
-  "♡": "Heart",
-  "★": "Star",
-  "☀": "Sun",
-  "✦": "Sparkle",
-  "☁": "Cloud",
-  "☾": "Moon",
-  "☄": "Comet",
-  "⚡": "Lightning",
-  "♫": "Music note",
-  "☮": "Peace sign",
-  "☯": "Yin yang",
-  "☘": "Lucky clover",
-  "♛": "Crown",
-  "☻": "Smiley",
-  "✺": "Burst",
-  "✈": "Airplane",
-  "☂": "Umbrella",
-  "⚓": "Anchor",
-  "☕": "Coffee cup",
-  "✉": "Letter",
-  "✎": "Pencil",
-  "♬": "Music",
-  "✽": "Flower burst",
-};
 export function addBand(shirt, point) {
   if (shirt.bands >= 3) return false;
   const angle =
@@ -166,6 +127,8 @@ export function addBand(shirt, point) {
         )
       : shirt.fold === 1
         ? (shirt.bands - 1) * 0.32
+        : shirt.fold === 4
+          ? [-0.28, 0, 0.28][shirt.bands]
         : 0;
   shirt.bandPlacements.push({ angle, offset });
   shirt.bands = shirt.bandPlacements.length;
@@ -173,22 +136,26 @@ export function addBand(shirt, point) {
 }
 export function constrainSticker(sticker) {
   sticker.size = Math.max(0.1, Math.min(0.42, sticker.size));
-  const margin = sticker.size * 0.55;
-  sticker.x = Math.max(-0.41 + margin, Math.min(0.41 - margin, sticker.x));
-  sticker.y = Math.max(-0.64 + margin, Math.min(0.42 - margin, sticker.y));
+  const visible = sticker.size * 0.22;
+  sticker.x = Math.max(-0.8 - visible, Math.min(0.8 + visible, sticker.x));
+  sticker.y = Math.max(-0.7 - visible, Math.min(0.7 + visible, sticker.y));
   return sticker;
 }
 export function addSticker(shirt, symbol, random = false, color = "#fffaf2") {
-  if (shirt.stickers.length >= 8 || !STICKERS.includes(symbol)) return null;
+  if (shirt.stickers.length >= 12 || !STICKERS.includes(symbol)) return null;
   const places = [
     [0, 0.1],
     [-0.2, -0.18],
     [0.2, -0.18],
     [0, -0.4],
-    [-0.19, 0.24],
-    [0.19, 0.24],
+    [-0.57, 0.34],
+    [0.57, 0.34],
+    [-0.2, 0.29],
+    [0.2, 0.29],
     [-0.2, -0.43],
     [0.2, -0.43],
+    [-0.36, -0.08],
+    [0.36, -0.08],
   ];
   const [x, y] = places[shirt.stickers.length];
   const sticker = constrainSticker({

@@ -94,14 +94,27 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
   expect(await canvasFingerprint(canvas)).toBe(originalRendering);
   await page.getByRole("button", { name: "Star sticker" }).click();
   await expect(page.locator(".placed-sticker")).toHaveCount(1);
-  await page.getByRole("tab", { name: "Playful" }).click();
-  await page.getByRole("button", { name: "Lightning sticker" }).click();
+  await page.getByRole("tab", { name: "Symbols" }).click();
+  await page.getByRole("button", { name: "Lightning bolt sticker" }).click();
   await page.getByRole("button", { name: "Violet" }).click();
   await expect(page.locator(".placed-sticker")).toHaveCount(2);
   await expect(page.locator(".placed-sticker").nth(1).locator("span")).toHaveCSS(
     "color",
     "rgb(128, 88, 214)",
   );
+  await expect(page.locator("#sticker-layer")).toHaveCSS(
+    "clip-path",
+    /shirt-sticker-clip/,
+  );
+  await page.getByRole("tab", { name: "Basic shapes" }).click();
+  for (let index = 0; index < 10; index++)
+    await page.getByRole("button", { name: "Star sticker" }).click();
+  await expect(page.locator(".placed-sticker")).toHaveCount(12);
+  await expect(page.getByRole("button", { name: "Heart sticker" })).toBeDisabled();
+  await page.getByRole("button", { name: "Save & share", exact: true }).click();
+  const stickerDownload = page.waitForEvent("download");
+  await page.getByRole("button", { name: "Save my shirt", exact: true }).click();
+  expect((await stickerDownload).suggestedFilename()).toMatch(/^dye-day-.*\.png$/);
   expect(errors).toEqual([]);
 });
 
@@ -176,8 +189,14 @@ test("a finished shirt saves locally, downloads, and starts another tee", async 
   await page.getByRole("button", { name: "Finish my shirt" }).click();
   await page.getByRole("button", { name: "Unfold my shirt" }).click();
   await page.getByRole("button", { name: "Save & share", exact: true }).click();
+  await page.getByLabel("Made by").fill("https://example.com");
+  await expect(page.locator("#name-error")).toContainText("web addresses");
+  await expect(page.getByRole("button", { name: "Hang it on the clothesline" })).toBeDisabled();
   await page.getByLabel("Made by").fill("Studio Tester");
+  await page.getByLabel("Name your tee").fill("sh1t");
+  await expect(page.locator("#title-error")).toContainText("family-friendly");
   await page.getByLabel("Name your tee").fill("Rainbow Rush");
+  await expect(page.getByRole("button", { name: "Hang it on the clothesline" })).toBeEnabled();
   const download = page.waitForEvent("download");
   await page.getByRole("button", { name: "Save my shirt" }).click();
   expect((await download).suggestedFilename()).toMatch(/^dye-day-.*\.png$/);

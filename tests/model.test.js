@@ -9,6 +9,7 @@ import {
   createShirt,
   addDrop,
   canAdvance,
+  publicTextError,
   validEntry,
 } from "../src/model.js";
 test("six folds offer distinct pattern choices", () => {
@@ -57,6 +58,8 @@ test("gallery accepts bounded PNG data and rejects unsafe or oversized content",
   assert.equal(validEntry(entry), true);
   assert.equal(validEntry({ ...entry, image: "javascript:alert(1)" }), false);
   assert.equal(validEntry({ ...entry, name: "x".repeat(33) }), false);
+  assert.equal(validEntry({ ...entry, name: "https://example.com" }), false);
+  assert.equal(validEntry({ ...entry, title: "what the fuck" }), false);
   assert.equal(
     validEntry({
       ...entry,
@@ -75,25 +78,53 @@ test("band placements retain drop location and are bounded to three", async () =
   addBand(shirt);
   assert.equal(addBand(shirt), false);
   assert.equal(shirt.bands, 3);
+  const chevron = createShirt();
+  chevron.fold = 4;
+  addBand(chevron);
+  addBand(chevron);
+  addBand(chevron);
+  assert.deepEqual(
+    chevron.bandPlacements.map(({ offset }) => offset),
+    [-0.28, 0, 0.28],
+  );
 });
 test("stickers remain on the fabric through scaling and dragging", async () => {
   const { addSticker, constrainSticker } = await import("../src/model.js");
   const shirt = createShirt();
-  const sticker = addSticker(shirt, "♡");
+  const sticker = addSticker(shirt, "heart");
   sticker.x = 20;
   sticker.y = -20;
   sticker.size = 10;
   constrainSticker(sticker);
   assert.equal(sticker.size, 0.42);
   assert.equal(sticker.color, "#fffaf2");
-  assert.ok(sticker.x + sticker.size * 0.55 <= 0.41);
-  assert.ok(sticker.y - sticker.size * 0.55 >= -0.64);
-  for (let i = 0; i < 10; i++) addSticker(shirt, "★");
-  assert.equal(shirt.stickers.length, 8);
+  assert.equal(sticker.x, 0.8 + sticker.size * 0.22);
+  assert.equal(sticker.y, -0.7 - sticker.size * 0.22);
+  for (let i = 0; i < 14; i++) addSticker(shirt, "star");
+  assert.equal(shirt.stickers.length, 12);
+  assert.deepEqual(
+    shirt.stickers.slice(4, 6).map(({ x, y }) => [x, y]),
+    [
+      [-0.57, 0.34],
+      [0.57, 0.34],
+    ],
+  );
   assert.equal(addSticker(shirt, "?"), null);
 });
 test("sticker collections offer a colorful range of choices", () => {
-  assert.equal(STICKERS.length, 24);
-  assert.equal(new Set(STICKERS).size, 24);
-  assert.deepEqual(Object.keys(STICKER_CATEGORIES), ["Favorites", "Playful", "Adventure"]);
+  assert.equal(STICKERS.length, 48);
+  assert.equal(new Set(STICKERS).size, 48);
+  assert.deepEqual(Object.keys(STICKER_CATEGORIES), [
+    "Basic shapes",
+    "Symbols",
+    "Emojis",
+    "Nature",
+    "Animals",
+    "Fun stuff",
+  ]);
+});
+test("public shirt details reject profanity and URLs", () => {
+  assert.equal(publicTextError("Rainbow Rider", 48), "");
+  assert.match(publicTextError("www.example.com", 48), /addresses/);
+  assert.match(publicTextError("sh1t", 48), /family-friendly/);
 });

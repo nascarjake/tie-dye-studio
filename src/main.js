@@ -13,7 +13,9 @@ import {
   addBand,
   addSticker,
   constrainSticker,
+  publicTextError,
 } from "./model.js";
+import { stickerSvg } from "./stickers.js";
 import { ShirtRenderer } from "./renderer.js";
 import { getEntries, saveEntry, sharedGallery } from "./gallery.js";
 import { StickerEditor, paintStickers } from "./sticker-editor.js";
@@ -22,7 +24,8 @@ const useV2 = uiVersion !== "v1";
 document.body.classList.toggle("ui-v2", useV2);
 let selectedSticker = null,
   finishTab = "decorate",
-  stickerCategory = "Favorites";
+  stickerCategory = "Basic shapes",
+  stickerSearch = "";
 let shirt = createShirt(),
   step = 0,
   shade = 1,
@@ -64,7 +67,7 @@ ${
 <section id="studio-view">
 <div class="intro"><div><p class="eyebrow">WELCOME TO THE COLOR LAB</p><h1>Fold it. Splash it. <br>Make it <em>iconic.</em></h1><p class="intro-copy">Create a one-of-a-kind tie-dye tee, add your finishing touches, and hang it on the worldwide clothesline.</p></div><div class="intro-stamp"><span>100% ORIGINAL</span><strong>Made<br>by you</strong><span>ONE WILD TEE AT A TIME</span></div></div>
 <div class="workspace">
-<section class="workbench" aria-label="Interactive tie-dye workspace"><div class="bench-top"><span class="bench-label"><span class="status-dot"></span><span id="bench-label-text">CHOOSE YOUR FOLD</span></span><span id="edition">TEE 001</span></div><div class="canvas-wrap"><canvas id="shirt-canvas" width="1100" height="1000" tabindex="0" role="img" aria-label="Your shirt. Choose a fold to get started."></canvas><div id="sticker-layer" aria-label="Stickers on your shirt"></div><span class="side-note">color outside the lines</span><div class="reveal-badge" id="reveal-badge" hidden><span id="reveal-kicker"></span><strong id="reveal-title"></strong></div><div class="canvas-error" id="canvas-error" hidden><strong>Let’s get the studio ready.</strong><p>This game needs WebGL. Try a browser with hardware acceleration enabled.</p></div></div><div class="bench-bottom"><span id="bench-hint">Your blank canvas. Infinite possibilities.</span><button class="text-button" id="reset-button">${icon("reset")} Start over</button></div></section>
+<section class="workbench" aria-label="Interactive tie-dye workspace"><div class="bench-top"><span class="bench-label"><span class="status-dot"></span><span id="bench-label-text">CHOOSE YOUR FOLD</span></span><span id="edition">TEE 001</span></div><div class="canvas-wrap"><canvas id="shirt-canvas" width="1100" height="1000" tabindex="0" role="img" aria-label="Your shirt. Choose a fold to get started."></canvas><svg class="sticker-clip-defs" aria-hidden="true"><defs><clipPath id="shirt-sticker-clip" clipPathUnits="objectBoundingBox"><path clip-rule="evenodd" d="M.3942 .1731L.274 .2115L.125 .351L.2163 .4712L.2933 .4135L.2933 .8269L.7067 .8269L.7067 .4135L.7837 .4712L.875 .351L.726 .2115L.6058 .1731ZM.6178 .1394A.1178 .1178 0 1 0 .3822 .1394A.1178 .1178 0 1 0 .6178 .1394Z"/></clipPath></defs></svg><div id="sticker-layer" aria-label="Stickers on your shirt"></div><span class="side-note">color outside the lines</span><div class="reveal-badge" id="reveal-badge" hidden><span id="reveal-kicker"></span><strong id="reveal-title"></strong></div><div class="canvas-error" id="canvas-error" hidden><strong>Let’s get the studio ready.</strong><p>This game needs WebGL. Try a browser with hardware acceleration enabled.</p></div></div><div class="bench-bottom"><span id="bench-hint">Your blank canvas. Infinite possibilities.</span><button class="text-button" id="reset-button">${icon("reset")} Start over</button></div></section>
 <aside class="controls"><div class="quest-status"><div class="quest-status-copy"><span>YOUR TIE-DYE QUEST</span><strong id="quest-progress-copy">LEVEL 1 OF 4</strong></div><div class="quest-meter" role="progressbar" aria-label="Tie-dye quest progress" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1"><span id="quest-meter-fill"></span></div></div><ol class="steps" aria-label="Your progress"><li class="active"><span>1</span>Fold</li><li><span>2</span>Tie</li><li><span>3</span>Dye</li><li><span>4</span>Finish</li></ol><div id="step-content"></div><div class="secret-note">${icon("heart")}<p>Your style, your rules.<br><span>Every splash lands a little differently.</span></p></div></aside>
 </div>
 <div class="under-workspace"><span>NO TWO SHIRTS ALIKE. THAT’S THE WHOLE POINT.</span><span>Fold it. Dye it. Show it off. <span class="tiny-flower">✳</span></span></div>
@@ -302,6 +305,42 @@ function renderStep() {
       .forEach((button) => (button.disabled = true));
   }
 }
+function updateStickerBrowser(panel) {
+  const query = stickerSearch.trim().toLowerCase();
+  let visible = 0;
+  panel.querySelectorAll("[data-symbol]").forEach((button) => {
+    const matches = query
+      ? STICKER_NAMES[button.dataset.symbol].toLowerCase().includes(query)
+      : button.dataset.category === stickerCategory;
+    button.hidden = !matches;
+    if (matches) visible++;
+  });
+  panel.querySelector(".sticker-browser-empty").hidden = visible > 0;
+  $("#sticker-browser-count").textContent = query
+    ? `${visible} result${visible === 1 ? "" : "s"}`
+    : `${stickerCategory} · ${visible} stickers`;
+}
+function shirtMetadataErrors() {
+  return {
+    name: publicTextError(shirt.name, 32),
+    title: publicTextError(shirt.title, 48),
+  };
+}
+function updateMetadataValidation() {
+  const errors = shirtMetadataErrors();
+  for (const [field, error] of Object.entries(errors)) {
+    const input = field === "name" ? $("#guest-name") : $("#shirt-title");
+    const message = $(`#${field}-error`);
+    if (!input || !message) continue;
+    input.setAttribute("aria-invalid", String(Boolean(error)));
+    message.textContent = error;
+    message.hidden = !error;
+  }
+  const invalid = Boolean(errors.name || errors.title);
+  if ($("#save-shirt")) $("#save-shirt").disabled = saved || saving || invalid;
+  if ($("#download-shirt")) $("#download-shirt").disabled = invalid;
+  return !invalid;
+}
 function renderFinish(content) {
   const selected = shirt.stickers.find((s) => s.id === selectedSticker);
   content.dataset.finishTab = finishTab;
@@ -316,8 +355,7 @@ function renderFinish(content) {
   };
   const panel = $("#finish-panel");
   if (finishTab === "decorate") {
-    const categoryStickers = STICKER_CATEGORIES[stickerCategory];
-    panel.innerHTML = `<div class="sticker-category-tabs" role="tablist" aria-label="Sticker collections">${Object.keys(STICKER_CATEGORIES).map((category) => `<button role="tab" data-sticker-category="${category}" aria-selected="${stickerCategory === category}">${category}</button>`).join("")}</div><div class="sticker-palette" role="group" aria-label="Add stickers">${categoryStickers.map((symbol) => `<button class="sticker-choice" data-symbol="${symbol}" aria-label="${STICKER_NAMES[symbol]} sticker" ${saved || shirt.stickers.length >= 8 ? "disabled" : ""}>${symbol}</button>`).join("")}<button class="random-stickers" id="random-stickers" ${saved || shirt.stickers.length >= 8 ? "disabled" : ""}>Surprise me ✧</button></div><p class="editor-instruction" id="editor-status" aria-live="polite">${shirt.stickers.length}/8 stickers · ${selected ? "Drag it, recolor it, or use the controls below." : "Pick from 24 stickers, then make it your own."}</p><div class="sticker-tools ${selected ? "" : "empty"}">${
+    panel.innerHTML = `<div class="sticker-browser"><label class="sticker-search"><span class="visually-hidden">Search stickers</span><input id="sticker-search" type="search" placeholder="Search 48 stickers" value="${stickerSearch.replaceAll('"', "&quot;")}" autocomplete="off"/></label><div class="sticker-category-tabs" role="tablist" aria-label="Sticker categories">${Object.keys(STICKER_CATEGORIES).map((category) => `<button role="tab" data-sticker-category="${category}" aria-selected="${!stickerSearch && stickerCategory === category}">${category}</button>`).join("")}</div><div class="sticker-palette" role="group" aria-label="Add stickers">${STICKERS.map((symbol) => `<button class="sticker-choice" data-symbol="${symbol}" data-category="${Object.entries(STICKER_CATEGORIES).find(([, symbols]) => symbols.includes(symbol))[0]}" aria-label="${STICKER_NAMES[symbol]} sticker" ${saved || shirt.stickers.length >= 12 ? "disabled" : ""}>${stickerSvg(symbol)}</button>`).join("")}</div><p class="sticker-browser-empty" hidden>No stickers match that search.</p><div class="sticker-browser-footer"><span id="sticker-browser-count"></span><button class="random-stickers" id="random-stickers" ${saved || shirt.stickers.length >= 12 ? "disabled" : ""}>Surprise me ✧</button></div></div><p class="editor-instruction" id="editor-status" aria-live="polite">${shirt.stickers.length}/12 stickers · ${selected ? "Drag it onto the body or sleeves—even partly over an edge." : "Browse 48 Font Awesome stickers in six categories."}</p><div class="sticker-tools ${selected ? "" : "empty"}">${
       selected
         ? `<div class="sticker-colors" role="group" aria-label="Color selected sticker"><span>Color</span>${STICKER_COLORS.map((swatch) => `<button class="sticker-color" data-sticker-color="${swatch.value}" aria-label="${swatch.name}" aria-pressed="${(selected.color || "#fffaf2") === swatch.value}" style="--swatch: ${swatch.value}" ${saved ? "disabled" : ""}></button>`).join("")}</div><div class="size-control"><label for="sticker-size">Size</label><input id="sticker-size" type="range" min="10" max="42" step="1" value="${Math.round(selected.size * 100)}" ${saved ? "disabled" : ""}/><span id="sticker-size-label">${Math.round(selected.size * 100)}</span><button class="text-button" id="remove-sticker" ${saved ? "disabled" : ""}>Remove</button></div><div class="move-controls" role="group" aria-label="Move selected sticker"><span>Move</span>${[
             ["left", "←"],
@@ -355,18 +393,24 @@ function renderFinish(content) {
       (button) =>
         (button.onclick = () => {
           stickerCategory = button.dataset.stickerCategory;
+          stickerSearch = "";
           renderStep();
         }),
     );
+    $("#sticker-search").oninput = (event) => {
+      stickerSearch = event.target.value;
+      updateStickerBrowser(panel);
+    };
+    updateStickerBrowser(panel);
     $("#random-stickers").onclick = () => {
-      const count = Math.min(3, 8 - shirt.stickers.length);
+      const count = Math.min(3, 12 - shirt.stickers.length);
       for (let i = 0; i < count; i++) {
         const sticker = addSticker(
           shirt,
           STICKERS[Math.floor(Math.random() * STICKERS.length)],
           true,
         );
-        selectedSticker = sticker.id;
+        if (sticker) selectedSticker = sticker.id;
       }
       renderStep();
     };
@@ -418,14 +462,21 @@ function renderFinish(content) {
       };
     }
   } else {
-    panel.innerHTML = `<div class="name-fields"><div><label class="input-label" for="guest-name">Made by <span>optional</span></label><input id="guest-name" maxlength="32" placeholder="Your name" autocomplete="given-name" ${saved ? "disabled" : ""}/></div><div><label class="input-label" for="shirt-title">Name your tee <span>optional</span></label><input id="shirt-title" maxlength="48" placeholder="Electric sunshine" ${saved ? "disabled" : ""}/></div></div><button class="button primary" id="save-shirt" ${saved ? "disabled" : ""}>${icon("line")}${saved ? "Hanging in the gallery!" : saving ? "Hanging your shirt…" : "Hang it on the clothesline"}</button><button class="button secondary" id="download-shirt">${icon("download")} ${usesMobileSaveSheet() ? "Save / share my shirt" : "Save my shirt"}</button><button class="text-button make-another-inline" id="make-another-inline">${icon("reset")} Make another shirt</button><p class="button-caption">${sharedGallery ? "Join the shared clothesline with tie-dye artists everywhere." : "This clothesline is saved on this device."}</p>`;
+    panel.innerHTML = `<div class="name-fields"><div><label class="input-label" for="guest-name">Made by <span>optional</span></label><input id="guest-name" maxlength="32" placeholder="Your name" autocomplete="given-name" aria-describedby="name-error" ${saved ? "disabled" : ""}/><p class="field-error" id="name-error" hidden></p></div><div><label class="input-label" for="shirt-title">Name your tee <span>optional</span></label><input id="shirt-title" maxlength="48" placeholder="Electric sunshine" aria-describedby="title-error" ${saved ? "disabled" : ""}/><p class="field-error" id="title-error" hidden></p></div></div><button class="button primary" id="save-shirt" ${saved ? "disabled" : ""}>${icon("line")}${saved ? "Hanging in the gallery!" : saving ? "Hanging your shirt…" : "Hang it on the clothesline"}</button><button class="button secondary" id="download-shirt">${icon("download")} ${usesMobileSaveSheet() ? "Save / share my shirt" : "Save my shirt"}</button><button class="text-button make-another-inline" id="make-another-inline">${icon("reset")} Make another shirt</button><p class="button-caption">${sharedGallery ? "Join the shared clothesline with tie-dye artists everywhere." : "This clothesline is saved on this device."}</p>`;
     $("#guest-name").value = shirt.name;
     $("#shirt-title").value = shirt.title;
-    $("#guest-name").oninput = (e) => (shirt.name = e.target.value);
-    $("#shirt-title").oninput = (e) => (shirt.title = e.target.value);
+    $("#guest-name").oninput = (event) => {
+      shirt.name = event.target.value;
+      updateMetadataValidation();
+    };
+    $("#shirt-title").oninput = (event) => {
+      shirt.title = event.target.value;
+      updateMetadataValidation();
+    };
     $("#save-shirt").onclick = hangShirt;
     $("#download-shirt").onclick = downloadShirt;
     $("#make-another-inline").onclick = startAnotherShirt;
+    updateMetadataValidation();
   }
 }
 function updateStickerSize() {
@@ -692,7 +743,7 @@ function usesMobileSaveSheet() {
 }
 function downloadShirt() {
   const button = $("#download-shirt");
-  if (!button || button.disabled) return;
+  if (!button || button.disabled || !updateMetadataValidation()) return;
   const label = button.innerHTML;
   const restore = () => {
     button.disabled = false;
@@ -740,6 +791,10 @@ function downloadShirt() {
 }
 async function hangShirt() {
   if (saved || saving) return;
+  if (!updateMetadataValidation()) {
+    notify("Please fix the name fields before hanging your shirt.");
+    return;
+  }
   saving = true;
   renderStep();
   try {
@@ -809,6 +864,8 @@ function resetShirt() {
   keyboardPoint = { x: 0, y: 0 };
   selectedSticker = null;
   finishTab = "decorate";
+  stickerCategory = "Basic shapes";
+  stickerSearch = "";
   $("#reveal-badge").hidden = true;
   updateEdition();
   $(".workbench").classList.remove("revealed", "rainbow");

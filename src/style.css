@@ -1886,6 +1886,12 @@ dialog h2 {
   inset: 0;
   pointer-events: none;
   z-index: 3;
+  clip-path: url("#shirt-sticker-clip");
+}
+.sticker-clip-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
 }
 .placed-sticker {
   position: absolute;
@@ -1904,10 +1910,19 @@ dialog h2 {
   line-height: 1;
 }
 .placed-sticker span {
-  font: var(--sticker-size) / 1 Georgia;
   color: var(--sticker-color, #fffaf2);
-  -webkit-text-stroke: var(--sticker-stroke) #34372c;
   pointer-events: none;
+}
+.placed-sticker svg {
+  display: block;
+  width: var(--sticker-size);
+  height: var(--sticker-size);
+  overflow: visible;
+  fill: currentColor;
+  stroke: #34372c;
+  stroke-width: 12;
+  stroke-linejoin: round;
+  paint-order: stroke fill;
 }
 .placed-sticker.selected {
   border-color: #606d40;
@@ -1946,16 +1961,53 @@ dialog h2 {
   color: var(--ink);
   box-shadow: 0 2px var(--ink);
 }
+.sticker-browser {
+  padding: 10px;
+  border: 1px solid #d8dfed;
+  border-radius: 9px;
+  background: #fff;
+}
+.sticker-search {
+  display: block;
+  margin-bottom: 8px;
+}
+.sticker-search input {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border: 1px solid #cbd4e2;
+  border-radius: 7px;
+  font: 600 13px "Manrope", sans-serif;
+}
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 .sticker-palette {
   display: grid;
-  grid-template-columns: repeat(8, minmax(40px, 1fr));
+  grid-template-columns: repeat(8, minmax(36px, 1fr));
   gap: 7px;
   align-items: center;
+  max-height: 108px;
+  overflow-y: auto;
+  padding: 2px;
 }
 .sticker-palette .sticker-choice {
-  width: 44px;
+  width: 100%;
   height: 44px;
-  font-size: 29px;
+  color: #17233b;
+}
+.sticker-palette .sticker-choice svg {
+  width: 25px;
+  height: 25px;
+  fill: currentColor;
 }
 .random-stickers {
   min-height: 44px;
@@ -1969,8 +2021,11 @@ dialog h2 {
   display: flex;
   gap: 6px;
   margin-bottom: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 .sticker-category-tabs button {
+  flex: 0 0 auto;
   min-height: 34px;
   padding: 4px 10px;
   border: 1px solid #d5dcc5;
@@ -1983,6 +2038,26 @@ dialog h2 {
   border-color: #5f926b;
   color: #315f41;
   background: #edf4df;
+}
+.sticker-browser-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+  color: #737c62;
+  font-size: 12px;
+}
+.sticker-browser-empty {
+  min-height: 48px;
+  margin: 0;
+  display: grid;
+  place-items: center;
+  color: #737c62;
+  font-size: 13px;
+}
+.sticker-browser-empty[hidden] {
+  display: none;
 }
 .sticker-colors {
   display: flex;
@@ -2013,6 +2088,16 @@ dialog h2 {
   color: #737c62;
   line-height: 1.5;
   margin: 12px 0;
+}
+.field-error {
+  margin: 5px 0 0;
+  color: #a62646;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.name-fields input[aria-invalid="true"] {
+  border-color: #c83f61;
+  box-shadow: 0 0 0 2px #c83f6122;
 }
 .sticker-tools {
   margin: 12px 0 18px;
