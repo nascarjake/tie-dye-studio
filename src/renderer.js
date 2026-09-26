@@ -50,7 +50,9 @@ void main(){
  vec4 dyeData=texture2D(uDyeMap,clamp(dyeP*.5+.5,0.,1.));
  float density=clamp(dyeData.a*3.2,0.,3.);
  float a=atan(p.y,p.x),r=length(p);
- float ridges=sin(r*20.+a*2.4+(fbm(p*4.)-.5)*1.5);
+ // Keep the angular frequency integral so the pattern closes cleanly where
+ // atan() wraps from PI to -PI on the shirt's left side.
+ float ridges=sin(r*20.+a*3.+(fbm(p*4.)-.5)*1.5);
  if(uFold>.5&&uFold<1.5)ridges=sin(p.x*16.+(fbm(p*5.)-.5)*1.25);
  if(uFold>1.5&&uFold<2.5)ridges=sin(fbm(p*5.2)*9.);
  if(uFold>2.5&&uFold<3.5)ridges=sin(a*5.+r*4.+(fbm(p*4.)-.5)*1.4);
