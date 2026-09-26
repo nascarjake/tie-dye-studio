@@ -77,8 +77,6 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
   });
   expect(chroma).toBeGreaterThan(8);
   await page.getByRole("button", { name: "Finish my shirt" }).click();
-  await page.getByRole("button", { name: "Unfold my shirt" }).click();
-  await expect(page.getByRole("heading", { name: "Your tee is ready!" })).toBeVisible();
   await expect(page.locator(".steps li").nth(3)).toHaveText(/Soak/);
   await expect(page.getByLabel("Soak time")).toHaveValue("40");
   const originalRendering = await canvasFingerprint(canvas);
@@ -93,6 +91,8 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
   expect(await canvasFingerprint(canvas)).toBe(originalRendering);
+  await page.getByRole("button", { name: "Unfold my shirt" }).click();
+  await expect(page.getByRole("heading", { name: "Your tee is ready!" })).toBeVisible();
   await page.getByRole("button", { name: "Star sticker" }).click();
   await expect(page.locator(".placed-sticker")).toHaveCount(1);
   await page.getByRole("tab", { name: "Symbols" }).click();

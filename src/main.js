@@ -293,7 +293,12 @@ function renderStep() {
       $("#bench-hint").textContent = "Your colors are locked in. Time to unfold.";
     };
   } else if (step === 3) {
-    content.innerHTML = `<p class="step-kicker">FINAL LEVEL · UNFOLD</p><h2>Ready to see your tee?</h2><p class="step-description">Your fold, bands, colors, and brush strokes are about to become one finished pattern.</p><div class="final-level-card"><span class="mystery-token" aria-hidden="true">✦</span><span><strong>Design complete!</strong><small>Unfold it, decorate it, and make it official.</small></span><span class="level-check" aria-hidden="true">✓</span></div><button class="button primary reveal-button" id="reveal-button">Unfold my shirt ${icon("arrow")}</button><p class="button-caption">There will never be another one exactly like it.</p>`;
+    content.innerHTML = `<p class="step-kicker">FINAL LEVEL · SOAK</p><h2>Ready to see your tee?</h2><p class="step-description">Set the fold-line brightness, then unfold your finished pattern.</p><div class="soak-setting finish-soak"><div><label for="soak-time">Soak time</label><output id="soak-value" for="soak-time">${shirt.soak}%</output></div><input id="soak-time" type="range" min="0" max="100" value="${shirt.soak}" aria-describedby="soak-help"/><p id="soak-help">Shorter soak makes fold lines brighter. Longer soak softens them.</p></div><div class="final-level-card"><span class="mystery-token" aria-hidden="true">✦</span><span><strong>Design complete!</strong><small>Set your soak, then unfold it and make it official.</small></span><span class="level-check" aria-hidden="true">✓</span></div><button class="button primary reveal-button" id="reveal-button">Unfold my shirt ${icon("arrow")}</button><p class="button-caption">There will never be another one exactly like it.</p>`;
+    $("#soak-time").oninput = (event) => {
+      shirt.soak = Number(event.target.value);
+      $("#soak-value").textContent = `${shirt.soak}%`;
+      draw();
+    };
     $("#reveal-button").onclick = performReveal;
   } else {
     renderFinish(content);
@@ -344,7 +349,7 @@ function updateMetadataValidation() {
 function renderFinish(content) {
   const selected = shirt.stickers.find((s) => s.id === selectedSticker);
   content.dataset.finishTab = finishTab;
-  content.innerHTML = `<div class="finish-heading"><p class="step-kicker">SOAK · FINISHING TOUCHES</p><h2>Your tee is ready!</h2><p class="step-description">Set the fold-line brightness, add stickers, then hang your creation on the clothesline.</p></div><div class="soak-setting finish-soak"><div><label for="soak-time">Soak time</label><output id="soak-value" for="soak-time">${shirt.soak}%</output></div><input id="soak-time" type="range" min="0" max="100" value="${shirt.soak}" aria-describedby="soak-help"/><p id="soak-help">Shorter soak makes fold lines brighter. Longer soak softens them.</p></div><div class="finish-tabs" role="tablist" aria-label="Finish your shirt"><button role="tab" id="decorate-tab" aria-controls="finish-panel" aria-selected="${finishTab === "decorate"}">1. Decorate</button><button role="tab" id="share-tab" aria-controls="finish-panel" aria-selected="${finishTab === "share"}">2. Save & share</button></div><div id="finish-panel" role="tabpanel" aria-labelledby="${finishTab === "decorate" ? "decorate-tab" : "share-tab"}"></div>`;
+  content.innerHTML = `<div class="finish-heading"><p class="step-kicker">QUEST COMPLETE · FRESH FROM THE COLOR LAB</p><h2>Your tee is ready!</h2><p class="step-description">Add stickers, give it a name, then hang your creation on the clothesline.</p></div><div class="finish-tabs" role="tablist" aria-label="Finish your shirt"><button role="tab" id="decorate-tab" aria-controls="finish-panel" aria-selected="${finishTab === "decorate"}">1. Decorate</button><button role="tab" id="share-tab" aria-controls="finish-panel" aria-selected="${finishTab === "share"}">2. Save & share</button></div><div id="finish-panel" role="tabpanel" aria-labelledby="${finishTab === "decorate" ? "decorate-tab" : "share-tab"}"></div>`;
   $("#decorate-tab").onclick = () => {
     finishTab = "decorate";
     renderStep();
@@ -352,11 +357,6 @@ function renderFinish(content) {
   $("#share-tab").onclick = () => {
     finishTab = "share";
     renderStep();
-  };
-  $("#soak-time").oninput = (event) => {
-    shirt.soak = Number(event.target.value);
-    $("#soak-value").textContent = `${shirt.soak}%`;
-    draw();
   };
   const panel = $("#finish-panel");
   if (finishTab === "decorate") {
