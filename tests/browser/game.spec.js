@@ -79,6 +79,7 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
 
 test("the paint-point budget stops at 300 without slowing the shader", async ({ page }) => {
   await reachDye(page);
+  await page.getByRole("button", { name: "Sky" }).click();
   const canvas = page.locator("#shirt-canvas");
   const elapsed = await canvas.evaluate((element) => {
     element.setPointerCapture = () => {};
@@ -97,6 +98,19 @@ test("the paint-point budget stops at 300 without slowing the shader", async ({ 
   });
   await expect(page.locator("#drop-count")).toHaveText("300 / 300 paint points");
   expect(elapsed).toBeLessThan(5000);
+  const saturatedPixels = await canvas.evaluate((element) => {
+    const gl = element.getContext("webgl");
+    const pixels = new Uint8Array(element.width * element.height * 4);
+    gl.readPixels(0, 0, element.width, element.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    let count = 0;
+    for (let index = 0; index < pixels.length; index += 4) {
+      const high = Math.max(pixels[index], pixels[index + 1], pixels[index + 2]);
+      const low = Math.min(pixels[index], pixels[index + 1], pixels[index + 2]);
+      if (pixels[index + 3] > 200 && high - low > 55) count++;
+    }
+    return count;
+  });
+  expect(saturatedPixels).toBeGreaterThan(250);
 });
 
 test("mobile save uses the native file share handoff", async ({ page }) => {
@@ -145,6 +159,21 @@ test("a finished shirt saves locally, downloads, and starts another tee", async 
   await page.getByRole("button", { name: "Make another shirt" }).click();
   await expect(page.getByRole("heading", { name: "Choose your fold." })).toBeVisible();
   await expect(page.locator("#edition")).toHaveText("TEE 002");
+  await expect(page.locator(".placed-sticker")).toHaveCount(0);
+  const blankShirtChroma = await page.locator("#shirt-canvas").evaluate((element) => {
+    const gl = element.getContext("webgl");
+    const pixels = new Uint8Array(element.width * element.height * 4);
+    gl.readPixels(0, 0, element.width, element.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    let total = 0, opaque = 0;
+    for (let index = 0; index < pixels.length; index += 4) {
+      if (pixels[index + 3] > 200) {
+        opaque++;
+        total += Math.max(pixels[index], pixels[index + 1], pixels[index + 2]) - Math.min(pixels[index], pixels[index + 1], pixels[index + 2]);
+      }
+    }
+    return total / opaque;
+  });
+  expect(blankShirtChroma).toBeLessThan(14);
 });
 
 test("short mobile screens keep shirt and controls in one viewport", async ({ page }) => {

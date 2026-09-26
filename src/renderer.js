@@ -191,7 +191,10 @@ export class ShirtRenderer {
     gradient.addColorStop(0.38, `rgba(${red}, ${green}, ${blue}, 0.31)`);
     gradient.addColorStop(0.74, `rgba(${red}, ${green}, ${blue}, 0.09)`);
     gradient.addColorStop(1, `rgba(${red}, ${green}, ${blue}, 0)`);
-    context.globalCompositeOperation = "lighter";
+    // Additive blending reaches white when a player layers many drops in the
+    // same place. Normal paint compositing keeps repeated color saturated and
+    // still lets the latest colors naturally blend into the fabric.
+    context.globalCompositeOperation = "source-over";
     context.fillStyle = gradient;
     context.fillRect(
       centerX - radius,
@@ -202,15 +205,20 @@ export class ShirtRenderer {
   }
   syncDyeMap(shirt) {
     const gl = this.gl;
+    let textureChanged = false;
     if (this.dyeShirtId !== shirt.id || shirt.drops.length < this.paintedDrops) {
       this.dyeContext.clearRect(0, 0, this.dyeMapSize, this.dyeMapSize);
       this.dyeShirtId = shirt.id;
       this.paintedDrops = 0;
+      textureChanged = true;
     }
     for (let index = this.paintedDrops; index < shirt.drops.length; index++)
       this.drawDyeDrop(shirt.drops[index]);
     if (this.paintedDrops !== shirt.drops.length) {
       this.paintedDrops = shirt.drops.length;
+      textureChanged = true;
+    }
+    if (textureChanged) {
       gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.dyeTexture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
