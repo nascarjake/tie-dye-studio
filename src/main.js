@@ -628,7 +628,13 @@ function snapshot(size = 1000, forGallery = false) {
   ctx.fillText(
     "DYE DAY! · THE TIE-DYE PLAYGROUND",
     size * 0.5,
-    size * 1.1,
+    size * 1.085,
+  );
+  ctx.font = `700 ${size * 0.014}px sans-serif`;
+  ctx.fillText(
+    "TYEDYE.JAKEDOESDEV.COM",
+    size * 0.5,
+    size * 1.13,
   );
   source.width = oldW;
   source.height = oldH;
