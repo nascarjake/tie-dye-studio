@@ -336,7 +336,7 @@ function renderFinish(content) {
     }</div><button class="button primary" id="finish-decorating">Save & share ${icon("arrow")}</button>`;
     $("#finish-decorating").insertAdjacentHTML(
       "beforebegin",
-      `<div class="soak-setting finish-soak"><div><label for="soak-time">Soak time</label><output id="soak-value" for="soak-time">${shirt.soak}%</output></div><input id="soak-time" type="range" min="0" max="100" value="${shirt.soak}" aria-describedby="soak-help"/><p id="soak-help">Less soak keeps fold lines bright. Below 20%, dye becomes softly faded.</p></div>`,
+      `<div class="soak-setting finish-soak"><div><label for="soak-time">Soak time</label><output id="soak-value" for="soak-time">${shirt.soak}%</output></div><input id="soak-time" type="range" min="0" max="100" value="${shirt.soak}" aria-describedby="soak-help"/><p id="soak-help">Shorter soak makes fold lines brighter. Longer soak softens them.</p></div>`,
     );
     $("#soak-time").oninput = (event) => {
       shirt.soak = Number(event.target.value);

@@ -22,6 +22,20 @@ async function paint(page, count = 5) {
     });
 }
 
+async function canvasFingerprint(canvas) {
+  return canvas.evaluate((element) => {
+    const gl = element.getContext("webgl");
+    const pixels = new Uint8Array(element.width * element.height * 4);
+    gl.readPixels(0, 0, element.width, element.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    let hash = 2166136261;
+    for (const channel of pixels) {
+      hash ^= channel;
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  });
+}
+
 test("default game has a colorful intro and all eight dyes", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".footer-credit")).toHaveText("MADE BY GOOSE GAMES");
@@ -66,11 +80,18 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
   await page.getByRole("button", { name: "Unfold my shirt" }).click();
   await expect(page.getByRole("heading", { name: "Your tee is ready!" })).toBeVisible();
   await expect(page.getByLabel("Soak time")).toHaveValue("40");
+  const originalRendering = await canvasFingerprint(canvas);
   await page.getByLabel("Soak time").evaluate((input) => {
     input.value = "10";
     input.dispatchEvent(new Event("input", { bubbles: true }));
   });
   await expect(page.locator("#soak-value")).toHaveText("10%");
+  expect(await canvasFingerprint(canvas)).not.toBe(originalRendering);
+  await page.getByLabel("Soak time").evaluate((input) => {
+    input.value = "40";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+  });
+  expect(await canvasFingerprint(canvas)).toBe(originalRendering);
   await page.getByRole("button", { name: "Star sticker" }).click();
   await expect(page.locator(".placed-sticker")).toHaveCount(1);
   await page.getByRole("tab", { name: "Playful" }).click();

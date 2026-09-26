@@ -70,9 +70,6 @@ void main(){
   float pool=fbm(p*3.+vec2(fbm(p*1.6+3.),fbm(p*1.9-4.))*1.25);
   resist=mix(.52,1.,smoothstep(.28,.72,pool));
  }
- float soak=clamp(uSoak,0.,1.);
- float resistStrength=soak<.4?mix(1.28,1.,soak/.4):mix(1.,.18,(soak-.4)/.6);
- resist=1.-(1.-resist)*resistStrength;
  float detailRidges=sin(r*83.+a*5.+fbm(p*22.)*10.);
  if(uFold>.5&&uFold<1.5)detailRidges=sin(p.x*91.+fbm(p*22.)*10.);
  if(uFold>1.5&&uFold<2.5)detailRidges=sin(fbm(p*12.)*45.);
@@ -83,12 +80,16 @@ void main(){
  resist*=1.-detailLine*.15;
  float tiedResist=1.;
  for(int i=0;i<3;i++){if(float(i)>=uBands)break;vec2 band=uBandLines[i];float d=abs(dot(dyeP,vec2(cos(band.x),sin(band.x)))-band.y);tiedResist*=mix(.32,1.,smoothstep(.008,.025,d));}
- float stain=clamp(density*.77,0.,1.)*mix(resist,.86,uFolded)*mix(tiedResist,1.,uFolded);
+ float baseStain=clamp(density*.77,0.,1.)*mix(tiedResist,1.,uFolded);
  vec3 dye=clamp(dyeData.rgb,0.,1.);
  vec3 ink=mix(dye,vec3(1.),.08+max(0.,.24-density*.1));
- float underSoaked=1.-smoothstep(0.,.2,soak);
- ink=mix(ink,mix(dye,vec3(1.),.54),underSoaked*.82);
- vec3 cloth=mix(vec3(.985,.98,.965),ink,stain);
+ vec3 whiteCloth=vec3(.985,.98,.965);
+ vec3 dyedCloth=mix(whiteCloth,ink,baseStain);
+ float soak=clamp(uSoak,0.,1.);
+ float lineOpacity=1.-mix(resist,.86,uFolded);
+ float lineScale=soak<.4?mix(1.55,1.,soak/.4):mix(1.,.12,(soak-.4)/.6);
+ lineOpacity=clamp(lineOpacity*lineScale,0.,1.);
+ vec3 cloth=mix(dyedCloth,whiteCloth,lineOpacity);
  float wrinkles=(sin(p.x*49.+sin(p.y*11.)*2.)*.02+sin(p.y*24.+p.x*9.)*.012)*(1.-uFolded);
  float foldedLight=sin(a*19.+r*24.)*.045+sin(r*87.-a*7.)*.025;
  if(uFold>.5&&uFold<1.5)foldedLight=sin(p.x*113.)*.095;
