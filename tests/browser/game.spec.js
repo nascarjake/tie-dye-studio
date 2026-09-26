@@ -79,6 +79,7 @@ test("colors appear while painting and finish as a decorated shirt", async ({ pa
   await page.getByRole("button", { name: "Finish my shirt" }).click();
   await page.getByRole("button", { name: "Unfold my shirt" }).click();
   await expect(page.getByRole("heading", { name: "Your tee is ready!" })).toBeVisible();
+  await expect(page.locator(".steps li").nth(3)).toHaveText(/Soak/);
   await expect(page.getByLabel("Soak time")).toHaveValue("40");
   const originalRendering = await canvasFingerprint(canvas);
   await page.getByLabel("Soak time").evaluate((input) => {

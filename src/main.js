@@ -59,7 +59,7 @@ function icon(name) {
 $("#app").innerHTML = `
 ${
   useV2
-    ? `<section class="game-intro" id="game-intro" role="dialog" aria-modal="true" aria-labelledby="game-intro-title"><div class="game-intro-sparkles" aria-hidden="true"><span>✦</span><span>●</span><span>✳</span><span>●</span><span>✦</span><span>●</span></div><div class="game-intro-card"><div class="game-intro-icon" aria-hidden="true">${icon("shirt")}</div><p class="game-intro-kicker">WELCOME TO THE COLOR LAB</p><h1 id="game-intro-title">Make a tee that is <em>totally yours.</em></h1><p class="game-intro-copy">Fold it, tie it, splash on color, then hang it for the world to see.</p><div class="game-intro-levels" aria-label="Fold, tie, dye, and finish"><span>Fold</span><i></i><span>Tie</span><i></i><span>Dye</span><i></i><span>Finish</span></div><button class="button primary game-intro-button" id="start-game">Enter the studio ${icon("arrow")}</button><p class="game-intro-note">Every choice changes your one-of-a-kind shirt.</p></div></section>`
+    ? `<section class="game-intro" id="game-intro" role="dialog" aria-modal="true" aria-labelledby="game-intro-title"><div class="game-intro-sparkles" aria-hidden="true"><span>✦</span><span>●</span><span>✳</span><span>●</span><span>✦</span><span>●</span></div><div class="game-intro-card"><div class="game-intro-icon" aria-hidden="true">${icon("shirt")}</div><p class="game-intro-kicker">WELCOME TO THE COLOR LAB</p><h1 id="game-intro-title">Make a tee that is <em>totally yours.</em></h1><p class="game-intro-copy">Fold it, tie it, splash on color, then hang it for the world to see.</p><div class="game-intro-levels" aria-label="Fold, tie, dye, and soak"><span>Fold</span><i></i><span>Tie</span><i></i><span>Dye</span><i></i><span>Soak</span></div><button class="button primary game-intro-button" id="start-game">Enter the studio ${icon("arrow")}</button><p class="game-intro-note">Every choice changes your one-of-a-kind shirt.</p></div></section>`
     : ""
 }
 <header class="header"><a class="brand" href="#" aria-label="Dye Day home"><span class="brand-flower">✳</span><span>Dye Day<span class="brand-dot">!</span></span></a><nav aria-label="Main navigation"><button class="nav-link active" id="studio-nav" aria-label="The dye studio">${icon("shirt")} <span class="nav-desktop">Dye studio</span><span class="nav-mobile">Studio</span></button><button class="nav-link" id="gallery-nav" aria-label="The clothesline">${icon("line")} <span class="nav-desktop">The clothesline</span><span class="nav-mobile">Clothesline</span> <span class="count" id="gallery-count">0</span></button></nav><a class="header-note header-credit" href="https://jakedoesdev.com" target="_blank" rel="noopener">MADE BY GOOSE GAMES ↗</a></header>
@@ -68,7 +68,7 @@ ${
 <div class="intro"><div><p class="eyebrow">WELCOME TO THE COLOR LAB</p><h1>Fold it. Splash it. <br>Make it <em>iconic.</em></h1><p class="intro-copy">Create a one-of-a-kind tie-dye tee, add your finishing touches, and hang it on the worldwide clothesline.</p></div><div class="intro-stamp"><span>100% ORIGINAL</span><strong>Made<br>by you</strong><span>ONE WILD TEE AT A TIME</span></div></div>
 <div class="workspace">
 <section class="workbench" aria-label="Interactive tie-dye workspace"><div class="bench-top"><span class="bench-label"><span class="status-dot"></span><span id="bench-label-text">CHOOSE YOUR FOLD</span></span><span id="edition">TEE 001</span></div><div class="canvas-wrap"><canvas id="shirt-canvas" width="1100" height="1000" tabindex="0" role="img" aria-label="Your shirt. Choose a fold to get started."></canvas><svg class="sticker-clip-defs" aria-hidden="true"><defs><clipPath id="shirt-sticker-clip" clipPathUnits="objectBoundingBox"><path clip-rule="evenodd" d="M.3942 .1731L.274 .2115L.125 .351L.2163 .4712L.2933 .4135L.2933 .8269L.7067 .8269L.7067 .4135L.7837 .4712L.875 .351L.726 .2115L.6058 .1731ZM.6178 .1394A.1178 .1178 0 1 0 .3822 .1394A.1178 .1178 0 1 0 .6178 .1394Z"/></clipPath></defs></svg><div id="sticker-layer" aria-label="Stickers on your shirt"></div><span class="side-note">color outside the lines</span><div class="reveal-badge" id="reveal-badge" hidden><span id="reveal-kicker"></span><strong id="reveal-title"></strong></div><div class="canvas-error" id="canvas-error" hidden><strong>Let’s get the studio ready.</strong><p>This game needs WebGL. Try a browser with hardware acceleration enabled.</p></div></div><div class="bench-bottom"><span id="bench-hint">Your blank canvas. Infinite possibilities.</span><button class="text-button" id="reset-button">${icon("reset")} Start over</button></div></section>
-<aside class="controls"><div class="quest-status"><div class="quest-status-copy"><span>YOUR TIE-DYE QUEST</span><strong id="quest-progress-copy">LEVEL 1 OF 4</strong></div><div class="quest-meter" role="progressbar" aria-label="Tie-dye quest progress" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1"><span id="quest-meter-fill"></span></div></div><ol class="steps" aria-label="Your progress"><li class="active"><span>1</span>Fold</li><li><span>2</span>Tie</li><li><span>3</span>Dye</li><li><span>4</span>Finish</li></ol><div id="step-content"></div><div class="secret-note">${icon("heart")}<p>Your style, your rules.<br><span>Every splash lands a little differently.</span></p></div></aside>
+<aside class="controls"><div class="quest-status"><div class="quest-status-copy"><span>YOUR TIE-DYE QUEST</span><strong id="quest-progress-copy">LEVEL 1 OF 4</strong></div><div class="quest-meter" role="progressbar" aria-label="Tie-dye quest progress" aria-valuemin="1" aria-valuemax="4" aria-valuenow="1"><span id="quest-meter-fill"></span></div></div><ol class="steps" aria-label="Your progress"><li class="active"><span>1</span>Fold</li><li><span>2</span>Tie</li><li><span>3</span>Dye</li><li><span>4</span>Soak</li></ol><div id="step-content"></div><div class="secret-note">${icon("heart")}<p>Your style, your rules.<br><span>Every splash lands a little differently.</span></p></div></aside>
 </div>
 <div class="under-workspace"><span>NO TWO SHIRTS ALIKE. THAT’S THE WHOLE POINT.</span><span>Fold it. Dye it. Show it off. <span class="tiny-flower">✳</span></span></div>
 </section>
@@ -166,7 +166,7 @@ function updateSteps() {
     "CHOOSE YOUR FOLD",
     "PLACE THREE BANDS",
     "ADD YOUR DYE",
-    "READY TO FINISH",
+    "READY TO SOAK",
     "MASTERPIECE COMPLETE",
   ];
   document.querySelectorAll(".steps li").forEach((el, i) => {
@@ -344,7 +344,7 @@ function updateMetadataValidation() {
 function renderFinish(content) {
   const selected = shirt.stickers.find((s) => s.id === selectedSticker);
   content.dataset.finishTab = finishTab;
-  content.innerHTML = `<div class="finish-heading"><p class="step-kicker">QUEST COMPLETE · FRESH FROM THE COLOR LAB</p><h2>Your tee is ready!</h2><p class="step-description">Add stickers, give it a name, then hang your creation on the clothesline.</p></div><div class="finish-tabs" role="tablist" aria-label="Finish your shirt"><button role="tab" id="decorate-tab" aria-controls="finish-panel" aria-selected="${finishTab === "decorate"}">1. Decorate</button><button role="tab" id="share-tab" aria-controls="finish-panel" aria-selected="${finishTab === "share"}">2. Save & share</button></div><div id="finish-panel" role="tabpanel" aria-labelledby="${finishTab === "decorate" ? "decorate-tab" : "share-tab"}"></div>`;
+  content.innerHTML = `<div class="finish-heading"><p class="step-kicker">SOAK · FINISHING TOUCHES</p><h2>Your tee is ready!</h2><p class="step-description">Set the fold-line brightness, add stickers, then hang your creation on the clothesline.</p></div><div class="soak-setting finish-soak"><div><label for="soak-time">Soak time</label><output id="soak-value" for="soak-time">${shirt.soak}%</output></div><input id="soak-time" type="range" min="0" max="100" value="${shirt.soak}" aria-describedby="soak-help"/><p id="soak-help">Shorter soak makes fold lines brighter. Longer soak softens them.</p></div><div class="finish-tabs" role="tablist" aria-label="Finish your shirt"><button role="tab" id="decorate-tab" aria-controls="finish-panel" aria-selected="${finishTab === "decorate"}">1. Decorate</button><button role="tab" id="share-tab" aria-controls="finish-panel" aria-selected="${finishTab === "share"}">2. Save & share</button></div><div id="finish-panel" role="tabpanel" aria-labelledby="${finishTab === "decorate" ? "decorate-tab" : "share-tab"}"></div>`;
   $("#decorate-tab").onclick = () => {
     finishTab = "decorate";
     renderStep();
@@ -352,6 +352,11 @@ function renderFinish(content) {
   $("#share-tab").onclick = () => {
     finishTab = "share";
     renderStep();
+  };
+  $("#soak-time").oninput = (event) => {
+    shirt.soak = Number(event.target.value);
+    $("#soak-value").textContent = `${shirt.soak}%`;
+    draw();
   };
   const panel = $("#finish-panel");
   if (finishTab === "decorate") {
@@ -372,15 +377,6 @@ function renderFinish(content) {
             )}<button class="center-sticker" id="center-sticker" ${saved ? "disabled" : ""}>Center</button></div>`
         : "<span>Just a little extra love. Stickers are optional.</span>"
     }</div><button class="button primary" id="finish-decorating">Save & share ${icon("arrow")}</button>`;
-    $("#finish-decorating").insertAdjacentHTML(
-      "beforebegin",
-      `<div class="soak-setting finish-soak"><div><label for="soak-time">Soak time</label><output id="soak-value" for="soak-time">${shirt.soak}%</output></div><input id="soak-time" type="range" min="0" max="100" value="${shirt.soak}" aria-describedby="soak-help"/><p id="soak-help">Shorter soak makes fold lines brighter. Longer soak softens them.</p></div>`,
-    );
-    $("#soak-time").oninput = (event) => {
-      shirt.soak = Number(event.target.value);
-      $("#soak-value").textContent = `${shirt.soak}%`;
-      draw();
-    };
     panel.querySelectorAll("[data-symbol]").forEach(
       (button) =>
         (button.onclick = () => {
