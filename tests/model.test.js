@@ -26,6 +26,7 @@ test("finishing requires tying and dyeing; shirts start fresh", () => {
   for (let i = 0; i < 3; i++) addDrop(shirt, 0.2, 0.1, 1);
   assert.equal(canAdvance(2, shirt), true);
   assert.equal(createShirt().drops.length, 0);
+  assert.equal(createShirt().soak, 40);
 });
 test("dye data stays inside shader limits and records placement and shades", () => {
   assert.equal(DYE_COLORS.length, 8);

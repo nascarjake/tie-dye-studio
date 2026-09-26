@@ -5,7 +5,7 @@ const fragment = `
 precision highp float;
 varying vec2 vUv;
 uniform vec2 uResolution;
-uniform float uFolded,uSeed,uFold,uBands;
+uniform float uFolded,uSeed,uFold,uBands,uSoak;
 uniform vec2 uBandLines[3];
 uniform sampler2D uDyeMap;
 float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7))+uSeed)*43758.5453);}
@@ -70,6 +70,9 @@ void main(){
   float pool=fbm(p*3.+vec2(fbm(p*1.6+3.),fbm(p*1.9-4.))*1.25);
   resist=mix(.52,1.,smoothstep(.28,.72,pool));
  }
+ float soak=clamp(uSoak,0.,1.);
+ float resistStrength=soak<.4?mix(1.28,1.,soak/.4):mix(1.,.18,(soak-.4)/.6);
+ resist=1.-(1.-resist)*resistStrength;
  float detailRidges=sin(r*83.+a*5.+fbm(p*22.)*10.);
  if(uFold>.5&&uFold<1.5)detailRidges=sin(p.x*91.+fbm(p*22.)*10.);
  if(uFold>1.5&&uFold<2.5)detailRidges=sin(fbm(p*12.)*45.);
@@ -83,6 +86,8 @@ void main(){
  float stain=clamp(density*.77,0.,1.)*mix(resist,.86,uFolded)*mix(tiedResist,1.,uFolded);
  vec3 dye=clamp(dyeData.rgb,0.,1.);
  vec3 ink=mix(dye,vec3(1.),.08+max(0.,.24-density*.1));
+ float underSoaked=1.-smoothstep(0.,.2,soak);
+ ink=mix(ink,mix(dye,vec3(1.),.54),underSoaked*.82);
  vec3 cloth=mix(vec3(.985,.98,.965),ink,stain);
  float wrinkles=(sin(p.x*49.+sin(p.y*11.)*2.)*.02+sin(p.y*24.+p.x*9.)*.012)*(1.-uFolded);
  float foldedLight=sin(a*19.+r*24.)*.045+sin(r*87.-a*7.)*.025;
@@ -139,6 +144,7 @@ export class ShirtRenderer {
         "uSeed",
         "uFold",
         "uBands",
+        "uSoak",
         "uBandLines[0]",
         "uDyeMap",
       ].map((n) => [n, gl.getUniformLocation(this.program, n)]),
@@ -246,6 +252,7 @@ export class ShirtRenderer {
     gl.uniform1f(u.uSeed, shirt.seed);
     gl.uniform1f(u.uFold, shirt.fold);
     gl.uniform1f(u.uBands, shirt.bands);
+    gl.uniform1f(u.uSoak, shirt.soak / 100);
     this.syncDyeMap(shirt);
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.dyeTexture);

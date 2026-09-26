@@ -74,6 +74,7 @@ export function createShirt() {
     id: crypto.randomUUID(),
     fold: 0,
     seed: Math.random() * 100,
+    soak: 40,
     drops: [],
     bands: 0,
     bandPlacements: [],
